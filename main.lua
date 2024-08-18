@@ -1,6 +1,7 @@
 -- I know globals are bad but this keeps things orthogonal with little cost
 WINDOW_WIDTH = 1280
 WINDOW_HEIGHT = 720
+mobile = false
 
 require 'planet'
 require 'ball'
@@ -13,31 +14,23 @@ local FORCE_MULTIPLIER = 10400
 function love.update(dt)
     
     -- handle keyboard input
-    if love.keyboard.isDown('w') then
-        planet1.speed = -10
-    elseif love.keyboard.isDown('s') then
-        planet1.speed = 10
+    if mobile == true then
+	    handleTouchInput()
     else
-        planet1.speed = 0
-    end 
-
-    if love.keyboard.isDown('up') then
-        planet2.speed = -10
-    elseif love.keyboard.isDown('down') then
-        planet2.speed = 10
-    else 
-        planet2.speed = 0
+	    handleKeyboardInput()
     end
-
-    -- handle score events
+    
+	-- handle score events
     local id = ball:score()
     if id ~= 0 then 
         scoreboard:score(id)
     end
-
-    -- do gravity calculations
+	
+	-- do gravity calculations
     
     -- code smell here
+    -- this basically just takes the gravity force calculation and reduces it every 
+    -- tick to prevent orbits or other unwanted behavior
     if planet1.gravField:collide(ball.circle) then
         ball:addForce(getGravForce(planet1.circle, ball.circle, FORCE_MULTIPLIER))
         if inField == true then
@@ -71,6 +64,15 @@ function love.load()
         vsync = true
     })
   
+    -- phone setup
+    local os = love.system.getOS() 
+    if os == "Android" or os == "iOS" then
+	    mobile = true
+	    WINDOW_WIDTH = 2778 / 3
+	    WINDOW_HEIGHT = 1284 / 3
+	    
+	end
+    
     setupObjects()
     love.graphics.setFont(titleFont)
 end
@@ -186,6 +188,71 @@ end
 function getGravForceArcade(ballCircle, bodyCircle)
 
 end
+
+-- moved here to clean up the update function
+function handleKeyboardInput()
+	if love.keyboard.isDown('w') then
+        planet1.speed = -10
+    elseif love.keyboard.isDown('s') then
+        planet1.speed = 10
+    else
+        planet1.speed = 0
+    end 
+
+    if love.keyboard.isDown('up') then
+        planet2.speed = -10
+    elseif love.keyboard.isDown('down') then
+        planet2.speed = 10
+    else 
+        planet2.speed = 0
+    end
+end
+
+function handleTouchInput()
+	local planet1up = false
+	local planet1down = false
+	local planet2up = false 
+	local planet2down = false
+	touches = love.touch.getTouches()
+	for i, id in ipairs(touches) do
+		local x, y = love.touch.getPosition(id)
+		if x <= WINDOW_WIDTH / 2 and y <= WINDOW_HEIGHT / 2 then
+			planet1up = true
+		elseif x <= WINDOW_WIDTH / 2 and y > WINDOW_HEIGHT / 2 then
+			planet1down = true
+		elseif x > WINDOW_WIDTH / 2 and y <= WINDOW_HEIGHT / 2 then
+			planet2up = true
+		elseif x > WINDOW_WIDTH / 2 and y > WINDOW_HEIGHT / 2 then
+			planet2down = true
+		end
+	end
+	
+	if planet1up == true then
+		planet1.speed = -10
+	elseif planet1down == true then
+		planet1.speed = 10
+	else
+		planet1.speed = 0
+	end
+	
+	if planet2up == true then
+		planet2.speed = -10
+	elseif planet2down == true then
+		planet2.speed = 10
+	else
+		planet2.speed = 0
+	end
+	
+	if planet1up == true and planet1down == true then
+		planet1.speed = 0
+	end
+	
+	if planet2up == true and planet2down == true then
+		planet2.speed = 0
+	end
+	
+end
+	
 
 
 -- NOTE: increment ball speeds up each time it passes screen center
