@@ -185,6 +185,10 @@ function setSpeed(deltaX, deltaY, speed)
     return speed * dXNorm, speed * dYNorm
 end
 
+function getSpeed(deltX, deltY)
+	return distance(0, 0, deltX, deltY)
+end
+
 function getGravForceArcade(ballCircle, bodyCircle)
 
 end

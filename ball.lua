@@ -1,13 +1,13 @@
 -- encapsulation of ball behavior
 require 'circle'
-
--- rewrite w/o class 
+ 
 
 function makeBall(x, y, r, image)
     local ball = {}
     ball.circle = makeCircle(x, y, r, image)
     ball.dx = -5
     ball.dy = 0
+    ball.goalSpeed = 5 
 
     function ball:respawn()
         ball.circle.x = WINDOW_WIDTH / 2 
@@ -17,7 +17,7 @@ function makeBall(x, y, r, image)
     end
 
     function ball:update()
-        love.graphics.print('ball x = ' .. tostring(ball.circle.x))
+        ball:adjustSpeed()
         ball.circle.x = ball.circle.x + ball.dx 
         ball.circle.y = ball.circle.y + ball.dy
         if ball.circle:bound() then  
@@ -32,10 +32,16 @@ function makeBall(x, y, r, image)
 
     function ball:draw()
         ball.circle:draw()
-    end 
-
+    end
+    
+    function ball:adjustSpeed() 
+	    local currentSpeed = getSpeed(ball.dx, ball.dy)
+	    local difference = ball.goalSpeed - currentSpeed
+	    ball.dx, ball.dy = setSpeed(ball.dx, ball.dy, currentSpeed + (difference / 10))
+    end
     -- returns id of player who should score once the ball is out of bounds
     -- else returns 0
+    -- is it bad to couple scoring with the ball?
     function ball:score()
         local buffer = 100
         if ball.circle.x < 0 - buffer then 
