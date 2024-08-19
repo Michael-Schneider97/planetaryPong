@@ -3,6 +3,7 @@ WINDOW_WIDTH = 1280
 WINDOW_HEIGHT = 720
 mobile = false
 
+require 'devMenu'
 require 'planet'
 require 'ball'
 require 'scoreboard'
@@ -54,6 +55,7 @@ function love.update(dt)
     ball.update()
     planet1.update()
     planet2.update()
+    devMenu.update()
 end
 
 function love.load()
@@ -87,6 +89,7 @@ function love.draw()
     planet2.draw()  
     ball.draw()  
     scoreboard:draw()
+    devMenu.draw()
 end
 
 function love.keypressed(key)
@@ -111,6 +114,7 @@ function setupObjects()
     local GRAV_FIELD_SIZE = WINDOW_WIDTH / 8
 
     titleFont = love.graphics.newFont('asset/titlefont.ttf', 24)
+    devFont = love.graphics.newFont('asset/titlefont.ttf', 12)
     planet1Img = love.graphics.newImage('asset/planet1.PNG')
     planet2Img = love.graphics.newImage('asset/planet2.PNG')
     ballImg = love.graphics.newImage('asset/ball.PNG')
@@ -120,6 +124,8 @@ function setupObjects()
     ball = makeBall(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2, WINDOW_WIDTH / 80, ballImg)
     planet1 = makePlanet(GRAV_FIELD_SIZE + SIZE_SAFE_ZONE, WINDOW_HEIGHT / 2, PLANET_SIZE, planet1Img, GRAV_FIELD_SIZE , gravityFieldImg)
     planet2 = makePlanet(WINDOW_WIDTH - (GRAV_FIELD_SIZE + SIZE_SAFE_ZONE), WINDOW_HEIGHT / 2, PLANET_SIZE, planet2Img, GRAV_FIELD_SIZE, gravityFieldImg)
+    devMenu = getDevMenu()
+    devMenu:addVariable(getBallSpeed, "Ball Speed: ", true, setBallSpeed)
 end
 
 -- returns the force of gravity as a vector dx / dy format
@@ -256,7 +262,20 @@ function handleTouchInput()
 	end
 	
 end
-	
+
+--[[
+dev menu functions
+This is a hacky solution but the dev menu doesnt need to follow best practices.
+Additionally this allows me to have finer control over the dev menu without creating
+an esoteric abstraction that only makes maintaining the codebasw harder.]]
+
+function getBallSpeed()
+	return getSpeed(ball.dx, ball.dy)
+end
+
+function setBallSpeed(newSpd)
+	setSpeed(ball.dx, ball.dy, newSpd) 
+end
 
 
 -- NOTE: increment ball speeds up each time it passes screen center
