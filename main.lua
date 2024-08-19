@@ -1,4 +1,6 @@
 -- I know globals are bad but this keeps things orthogonal with little cost
+-- Additionally, lua feels like it wants globals. We can see about adding some
+-- namespaces later. 
 WINDOW_WIDTH = 1280
 WINDOW_HEIGHT = 720
 mobile = false
@@ -8,7 +10,7 @@ require 'planet'
 require 'ball'
 require 'scoreboard'
 
-
+-- do we need this still?
 local FORCE_MULTIPLIER = 10400
 
 -- update stuff
@@ -72,7 +74,6 @@ function love.load()
 	    mobile = true
 	    WINDOW_WIDTH = 2778 / 3
 	    WINDOW_HEIGHT = 1284 / 3
-	    
 	end
     
     setupObjects()
@@ -89,21 +90,13 @@ function love.draw()
     planet2.draw()  
     ball.draw()  
     scoreboard:draw()
-    devMenu.draw()
+    devMenu:draw()
 end
 
 function love.keypressed(key)
     if key == 'escape' then
         love.event.quit()
     end
-end
-
-
-
-
--- only here for debug purposes
-function displayFPS()
-    -- love.graphics.print('FPS: ' .. tostring(love.timer.getFPS()), 10, 10)
 end
 
 -- making these global isnt the best but I'm keeping them all in this one function to make keeping track easier

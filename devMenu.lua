@@ -27,26 +27,22 @@ function getDevMenu()
 	
 	-- displays current data as well as other ui elements
 	function devMenu:draw()
-oldFont = love.graphics.getFont()
-love.graphics.setFont(devFont)
-		-- bkg 
-		-- list of items
-		-- if applicable, modification fields
+		oldFont = love.graphics.getFont()
+		love.graphics.setFont(devFont)
+		
 		local x = 0
 		local y = 0
-		-- get current font size
--- set font smaller
 
 		-- update this bad boy
 		for k, v in pairs(devMenu.names) do
 			x = 0
-love.graphics.print(v, x, y)
-x = devFont:getWidth(v) + 10
-love.graphics.print(devMenu.vars[v], x, y)
-end
-			love.graphics.setFont(oldFont)
+			love.graphics.print(v, x, y)
+			x = devFont:getWidth(v) + 10
+			love.graphics.print(devMenu.vars[v], x, y)
 		end
 		
+		love.graphics.setFont(oldFont)
+	end
 	
 	return devMenu
 end
