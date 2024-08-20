@@ -19,15 +19,15 @@ button.wasClicked = false
 	-- put this in the love mouse pressed callback
 	function button:click(x_, y_)
 		if x_ >= button.x and x_ <= button.x + button.w and y_ >= button.y and y_ <= button.y + button.h then
-button.wasClicked = true
+			button.wasClicked = true
 		end
 	end
 
-function button:clicked()
-if button.wasClicked then
-button.wasClicked = false
-return true
-end
+	function button:clicked()
+		if button.wasClicked then
+			button.wasClicked = false
+		return true
+	end
 end
 		
 

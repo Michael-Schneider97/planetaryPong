@@ -120,6 +120,7 @@ function setupObjects()
     planet2 = makePlanet(WINDOW_WIDTH - (GRAV_FIELD_SIZE + SIZE_SAFE_ZONE), WINDOW_HEIGHT / 2, PLANET_SIZE, planet2Img, GRAV_FIELD_SIZE, gravityFieldImg)
     devMenu = getDevMenu()
     devMenu:addVariable(getBallSpeed, "Ball Speed: ", true, setBallSpeed)
+    devMenu:addVariable(getBallGoalSpd, "Ball Goal Speed: ", true, setBallGoalSpd)
 end
 
 -- returns the force of gravity as a vector dx / dy format
@@ -259,7 +260,7 @@ end
 
 
 function love.mousepressed(_x, _y, button)
-devMenu:handleClicks(_x, _y)
+	devMenu:handleClicks(_x, _y)
 end
 
 --[[
@@ -276,7 +277,13 @@ function setBallSpeed(newSpd)
 	ball.dx, ball.dy = setSpeed(ball.dx, ball.dy, newSpd) 
 end
 
+function getBallGoalSpd()
+	return ball.goalSpeed
+end
 
+function setBallGoalSpd(newSpd)
+	ball.goalSpeed = newSpd
+end
 -- NOTE: increment ball speeds up each time it passes screen center
 
 
