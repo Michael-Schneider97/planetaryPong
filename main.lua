@@ -9,6 +9,7 @@ require 'devMenu'
 require 'planet'
 require 'ball'
 require 'scoreboard'
+require 'button' 
 
 -- do we need this still?
 local FORCE_MULTIPLIER = 10400
@@ -107,7 +108,7 @@ function setupObjects()
     local GRAV_FIELD_SIZE = WINDOW_WIDTH / 8
 
     titleFont = love.graphics.newFont('asset/titlefont.ttf', 24)
-    devFont = love.graphics.newFont('asset/titlefont.ttf', 12)
+    devFont = love.graphics.newFont('asset/titlefont.ttf', 16)
     planet1Img = love.graphics.newImage('asset/planet1.PNG')
     planet2Img = love.graphics.newImage('asset/planet2.PNG')
     ballImg = love.graphics.newImage('asset/ball.PNG')
@@ -256,6 +257,11 @@ function handleTouchInput()
 	
 end
 
+
+function love.mousepressed(_x, _y, button)
+devMenu:handleClicks(_x, _y)
+end
+
 --[[
 dev menu functions
 This is a hacky solution but the dev menu doesnt need to follow best practices.
@@ -267,7 +273,7 @@ function getBallSpeed()
 end
 
 function setBallSpeed(newSpd)
-	setSpeed(ball.dx, ball.dy, newSpd) 
+	ball.dx, ball.dy = setSpeed(ball.dx, ball.dy, newSpd) 
 end
 
 
