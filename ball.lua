@@ -37,7 +37,7 @@ function makeBall(x, y, r, image)
     function ball:adjustSpeed() 
 	    local currentSpeed = getSpeed(ball.dx, ball.dy)
 	    local difference = ball.goalSpeed - currentSpeed
-	    ball.dx, ball.dy = setSpeed(ball.dx, ball.dy, currentSpeed + (difference / 10))
+	    ball.dx, ball.dy = setSpeed(ball.dx, ball.dy, currentSpeed + (difference / 30))
     end
     -- returns id of player who should score once the ball is out of bounds
     -- else returns 0
