@@ -1,6 +1,3 @@
--- I know globals are bad but this keeps things orthogonal with little cost
--- Additionally, lua feels like it wants globals. We can see about adding some
--- namespaces later. 
 WINDOW_WIDTH = 1280
 WINDOW_HEIGHT = 720
 mobile = false
@@ -10,9 +7,13 @@ require 'planet'
 require 'ball'
 require 'scoreboard'
 require 'button' 
+local TLfres = require "tlfres"
 
--- do we need this still?
+-- approach 1: return gravity as a constant
+-- approach 2: return gravity as a function of velocity
+
 local FORCE_MULTIPLIER = 10400
+constForce = 0.4
 
 -- update stuff
 function love.update(dt)
@@ -36,6 +37,7 @@ function love.update(dt)
     -- this basically just takes the gravity force calculation and reduces it every 
     -- tick to prevent orbits or other unwanted behavior
     if planet1.gravField:collide(ball.circle) then
+        --change line below for testing behavior 
         ball:addForce(getGravForce(planet1.circle, ball.circle, FORCE_MULTIPLIER))
         if inField == true then
             reduction = reduction + 0.01
@@ -73,8 +75,9 @@ function love.load()
     local os = love.system.getOS() 
     if os == "Android" or os == "iOS" then
 	    mobile = true
-	    WINDOW_WIDTH = 2778 / 3
-	    WINDOW_HEIGHT = 1284 / 3
+-- from before tlfres was added to this game.
+	    --WINDOW_WIDTH = 2778 / 3
+	    --WINDOW_HEIGHT = 1284 / 3
 	end
     
     setupObjects()
@@ -82,6 +85,7 @@ function love.load()
 end
 
 function love.draw()
+	TLfres.beginRendering(WINDOW_WIDTH, WINDOW_HEIGHT)
     local titleText = "GRAVITY PONG"
     love.graphics.clear(.1, .1, .1)
 
@@ -92,6 +96,7 @@ function love.draw()
     ball.draw()  
     scoreboard:draw()
     devMenu:draw()
+	TLfres.endRendering({1, 1, 1, 1})
 end
 
 function love.keypressed(key)
@@ -107,8 +112,8 @@ function setupObjects()
     local PLANET_SIZE = WINDOW_WIDTH / 30
     local GRAV_FIELD_SIZE = WINDOW_WIDTH / 8
 
-    titleFont = love.graphics.newFont('asset/titlefont.ttf', 24)
-    devFont = love.graphics.newFont('asset/titlefont.ttf', 16)
+    titleFont = love.graphics.newFont('asset/titlefont.ttf', 36)
+    devFont = love.graphics.newFont('asset/titlefont.ttf', 24)
     planet1Img = love.graphics.newImage('asset/planet1.PNG')
     planet2Img = love.graphics.newImage('asset/planet2.PNG')
     ballImg = love.graphics.newImage('asset/ball.PNG')
@@ -121,6 +126,7 @@ function setupObjects()
     devMenu = getDevMenu()
     devMenu:addVariable(getBallSpeed, "Ball Speed: ", true, setBallSpeed)
     devMenu:addVariable(getBallGoalSpd, "Ball Goal Speed: ", true, setBallGoalSpd)
+    devMenu:addVariable(getGravCoef, "Gravity Coef: ", true, setGravCoef)
 end
 
 -- returns the force of gravity as a vector dx / dy format
@@ -129,13 +135,13 @@ function getGravForce(circle1, circle2, forceMultiplier)
     local BALL_MASS = 1
     local DIST = distance(circle1.x, circle1.y, circle2.x, circle2.y)
     local deltaX, deltaY = getDir(circle1.x, circle1.y, circle2.x, circle2.y)
-    local force = calcForce(DIST) - reduction
+    local force = calcForce(DIST) -- reduction
     --(forceMultiplier * BALL_MASS) / ( (DIST + circle1.r + circle2.r) * (DIST) )  -- this idea was to control gravity as a matter of surface distance
     return deltaX * force, deltaY * force
 end
 
 function calcForce(x)
-    return 0.8
+    return constForce
 end
 
 -- if this doesnt get directionality right, mess with delta()
@@ -221,6 +227,10 @@ function handleTouchInput()
 	touches = love.touch.getTouches()
 	for i, id in ipairs(touches) do
 		local x, y = love.touch.getPosition(id)
+		-- we scale this down due to tlfres scaling
+		local scale = TLfres.getScale(WINDOW_WIDTH, WINDOW_HEIGHT)
+		x = x / scale
+		y = y / scale
 		if x <= WINDOW_WIDTH / 2 and y <= WINDOW_HEIGHT / 2 then
 			planet1up = true
 		elseif x <= WINDOW_WIDTH / 2 and y > WINDOW_HEIGHT / 2 then
@@ -259,7 +269,10 @@ function handleTouchInput()
 end
 
 
-function love.mousepressed(_x, _y, button)
+function love.mousepressed()
+	-- love can pass in the x and y but they will be off a bit
+	-- so we grab them from tlfres
+	_x, _y = TLfres.getMousePosition(WINDOW_WIDTH, WINDOW_HEIGHT)
 	devMenu:handleClicks(_x, _y)
 end
 
@@ -284,7 +297,17 @@ end
 function setBallGoalSpd(newSpd)
 	ball.goalSpeed = newSpd
 end
--- NOTE: increment ball speeds up each time it passes screen center
+
+-- for using constants for gravity calcs
+function getGravCoef()
+	return constForce
+end
+
+function setGravCoef(newCoef)
+	constForce = newCoef
+end
+
+-- NOTE: increment ball speeds up each time it passes screen center. Or not. 
 
 
 -- alternative algorithm for calculating ball gravity physics

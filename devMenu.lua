@@ -4,7 +4,7 @@ function getDevMenu()
 	-- implement as a table associated to strings
 	-- display data at some spot
 	local devMenu = {trackedData = {}, vars = {}, names = {}, editable = {}, setters = {}, buttonsDown = {}, buttonsUp = {} }
-	devMenu.incrementor = 0.5
+	devMenu.incrementor = 0.1
 	
 	-- allows you to add data to be tracked by the table
 	-- you have to add it as a function
