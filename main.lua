@@ -7,7 +7,7 @@ require 'planet'
 require 'ball'
 require 'scoreboard'
 require 'button' 
-local TLfres = require "tlfres"
+local rs = require("resolution_solution")
 
 -- approach 1: return gravity as a constant
 -- approach 2: return gravity as a function of velocity
@@ -66,7 +66,7 @@ end
 function love.load()
     math.randomseed(os.time())
     love.window.setMode(WINDOW_WIDTH, WINDOW_HEIGHT, {
-        fullscreen = false,
+        fullscreen = true,
         resizable = false,
         vsync = true
     })
@@ -85,7 +85,15 @@ function love.load()
 end
 
 function love.draw()
-	TLfres.beginRendering(WINDOW_WIDTH, WINDOW_HEIGHT)
+    rs.push()
+    -- Get current scissors.
+    local old_x, old_y, old_w, old_h = love.graphics.getScissor()
+    
+    -- Set scissors to size of game.
+    -- Luckily, library provide get_game_zone() function for such cases.
+    -- But you might pass values by hand as well.
+    love.graphics.setScissor(rs.get_game_zone())
+    
     local titleText = "GRAVITY PONG"
     love.graphics.clear(.1, .1, .1)
 
@@ -96,7 +104,11 @@ function love.draw()
     ball.draw()  
     scoreboard:draw()
     devMenu:draw()
-	TLfres.endRendering({1, 1, 1, 1})
+    
+    -- Once we done with our scissorring, we need to revert scissors.
+    love.graphics.setScissor(old_x, old_y, old_w, old_h)
+    -- Stop scaling.
+  rs.pop()
 end
 
 function love.keypressed(key)
@@ -111,7 +123,12 @@ function setupObjects()
     local BALL_SIZE = WINDOW_WIDTH / 80
     local PLANET_SIZE = WINDOW_WIDTH / 30
     local GRAV_FIELD_SIZE = WINDOW_WIDTH / 8
-
+    
+    rs.conf({game_width = WINDOW_WIDTH, game_height = WINDOW_HEIGHT, scale_mode = rs.ASPECT_MODE})
+    rs.setMode(rs.game_width, rs.game_height, {resizable = true})
+    love.resize = function(w, h)
+	  rs.resize(w, h)
+	end
     titleFont = love.graphics.newFont('asset/titlefont.ttf', 36)
     devFont = love.graphics.newFont('asset/titlefont.ttf', 24)
     planet1Img = love.graphics.newImage('asset/planet1.PNG')
@@ -149,6 +166,11 @@ end
 function getDir(x1, y1, x2, y2)
     local deltaX, deltaY = delta(x1, y1, x2, y2)
     return normalizeVect(deltaX, deltaY)
+end
+
+function translateDir(dir, degrees, clockOrCounter)
+
+
 end
 
 -- makes any vector into a unit vector
@@ -224,24 +246,24 @@ function handleTouchInput()
 	local planet1down = false
 	local planet2up = false 
 	local planet2down = false
+	local planet1VertBoundary = planet1.circle.x + ( planet1.gravField.r * 1.5 )
+	local planet2VertBoundary = planet2.circle.x - ( planet2.gravField.r * 1.5 )
 	touches = love.touch.getTouches()
 	for i, id in ipairs(touches) do
 		local x, y = love.touch.getPosition(id)
-		-- we scale this down due to tlfres scaling
-		local scale = TLfres.getScale(WINDOW_WIDTH, WINDOW_HEIGHT)
-		x = x / scale
-		y = y / scale
-		if x <= WINDOW_WIDTH / 2 and y <= WINDOW_HEIGHT / 2 then
+		x, y = rs.to_game(x, y)
+		if x <= planet1VertBoundary and y <= planet1.circle.y then
 			planet1up = true
-		elseif x <= WINDOW_WIDTH / 2 and y > WINDOW_HEIGHT / 2 then
+		elseif x <= planet1VertBoundary and y > planet1.circle.y then
 			planet1down = true
-		elseif x > WINDOW_WIDTH / 2 and y <= WINDOW_HEIGHT / 2 then
+		elseif x > planet2VertBoundary and y <= planet2.circle.y then
 			planet2up = true
-		elseif x > WINDOW_WIDTH / 2 and y > WINDOW_HEIGHT / 2 then
+		elseif x > planet2VertBoundary and y > planet2.circle.y then
 			planet2down = true
 		end
 	end
 	
+	-- could make this its own function
 	if planet1up == true then
 		planet1.speed = -10
 	elseif planet1down == true then
@@ -269,10 +291,10 @@ function handleTouchInput()
 end
 
 
-function love.mousepressed()
+function love.mousepressed(_x, _y)
 	-- love can pass in the x and y but they will be off a bit
 	-- so we grab them from tlfres
-	_x, _y = TLfres.getMousePosition(WINDOW_WIDTH, WINDOW_HEIGHT)
+_x, _y = rs.to_game(_x, _y)
 	devMenu:handleClicks(_x, _y)
 end
 
