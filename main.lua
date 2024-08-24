@@ -58,8 +58,8 @@ function love.update(dt)
 
     -- update positions
     ball.update()
-    planet1.update()
-    planet2.update()
+    planet1.update(dt)
+    planet2.update(dt)
     devMenu.update()
 end
 
@@ -75,9 +75,6 @@ function love.load()
     local os = love.system.getOS() 
     if os == "Android" or os == "iOS" then
 	    mobile = true
--- from before tlfres was added to this game.
-	    --WINDOW_WIDTH = 2778 / 3
-	    --WINDOW_HEIGHT = 1284 / 3
 	end
     
     setupObjects()
@@ -86,14 +83,10 @@ end
 
 function love.draw()
     rs.push()
-    -- Get current scissors.
     local old_x, old_y, old_w, old_h = love.graphics.getScissor()
-    
-    -- Set scissors to size of game.
-    -- Luckily, library provide get_game_zone() function for such cases.
-    -- But you might pass values by hand as well.
     love.graphics.setScissor(rs.get_game_zone())
     
+    -- start drawing
     local titleText = "GRAVITY PONG"
     love.graphics.clear(.1, .1, .1)
 
@@ -105,10 +98,9 @@ function love.draw()
     scoreboard:draw()
     devMenu:draw()
     
-    -- Once we done with our scissorring, we need to revert scissors.
+    -- stop drawing
     love.graphics.setScissor(old_x, old_y, old_w, old_h)
-    -- Stop scaling.
-  rs.pop()
+	rs.pop()
 end
 
 function love.keypressed(key)
@@ -127,7 +119,7 @@ function setupObjects()
     rs.conf({game_width = WINDOW_WIDTH, game_height = WINDOW_HEIGHT, scale_mode = rs.ASPECT_MODE})
     rs.setMode(rs.game_width, rs.game_height, {resizable = true})
     love.resize = function(w, h)
-	  rs.resize(w, h)
+		rs.resize(w, h)
 	end
     titleFont = love.graphics.newFont('asset/titlefont.ttf', 36)
     devFont = love.graphics.newFont('asset/titlefont.ttf', 24)
@@ -242,59 +234,42 @@ function handleKeyboardInput()
 end
 
 function handleTouchInput()
-	local planet1up = false
-	local planet1down = false
-	local planet2up = false 
-	local planet2down = false
-	local planet1VertBoundary = planet1.circle.x + ( planet1.gravField.r * 1.5 )
-	local planet2VertBoundary = planet2.circle.x - ( planet2.gravField.r * 1.5 )
-	touches = love.touch.getTouches()
+local stopPlanet1 = true
+local stopPlanet2 = true
+local buffer = 25
+	local planet1VertBoundary = WINDOW_WIDTH / 3
+	local planet2VertBoundary = WINDOW_WIDTH * 2 / 3
+	local touches = love.touch.getTouches()
+
 	for i, id in ipairs(touches) do
 		local x, y = love.touch.getPosition(id)
 		x, y = rs.to_game(x, y)
-		if x <= planet1VertBoundary and y <= planet1.circle.y then
-			planet1up = true
-		elseif x <= planet1VertBoundary and y > planet1.circle.y then
-			planet1down = true
-		elseif x > planet2VertBoundary and y <= planet2.circle.y then
-			planet2up = true
-		elseif x > planet2VertBoundary and y > planet2.circle.y then
-			planet2down = true
+		
+		-- this might bug out for multiple touches at once
+		if x < planet1VertBoundary and distance(planet1.circle.x, planet1.circle.y, x, y) > buffer then
+			planet1:setDir(getDir(planet1.circle.x, planet1.circle.y, x, y))
+stopPlanet1 = false
 		end
+
+        if x > planet2VertBoundary and distance(planet2.circle.x, planet2.circle.y, x, y) > buffer then
+            planet2:setDir(getDir(planet2.circle.x, planet2.circle.y, x, y))
+stopPlanet2 = false
+end
 	end
-	
-	-- could make this its own function
-	if planet1up == true then
-		planet1.speed = -10
-	elseif planet1down == true then
-		planet1.speed = 10
-	else
-		planet1.speed = 0
-	end
-	
-	if planet2up == true then
-		planet2.speed = -10
-	elseif planet2down == true then
-		planet2.speed = 10
-	else
-		planet2.speed = 0
-	end
-	
-	if planet1up == true and planet1down == true then
-		planet1.speed = 0
-	end
-	
-	if planet2up == true and planet2down == true then
-		planet2.speed = 0
-	end
-	
+
+if stopPlanet1 then
+planet1:stop()
+end
+
+if stopPlanet2 then
+planet2:stop()
+end
+
 end
 
 
 function love.mousepressed(_x, _y)
-	-- love can pass in the x and y but they will be off a bit
-	-- so we grab them from tlfres
-_x, _y = rs.to_game(_x, _y)
+	_x, _y = rs.to_game(_x, _y)
 	devMenu:handleClicks(_x, _y)
 end
 
@@ -328,8 +303,6 @@ end
 function setGravCoef(newCoef)
 	constForce = newCoef
 end
-
--- NOTE: increment ball speeds up each time it passes screen center. Or not. 
 
 
 -- alternative algorithm for calculating ball gravity physics
