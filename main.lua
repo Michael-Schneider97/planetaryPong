@@ -12,6 +12,15 @@ local rs = require("resolution_solution")
 -- approach 1: return gravity as a constant
 -- approach 2: return gravity as a function of velocity
 
+
+--[[
+gravity approach: 
+once inside a field, ball moves along with planet
+distance between ray and planet center sets goal speed or if planet should blow up
+planet gravity releases ball at an angle dependent on distance between ray ans planet
+]]
+
+
 local FORCE_MULTIPLIER = 10400
 constForce = 0.4
 
@@ -24,6 +33,8 @@ function love.update(dt)
     else
 	    handleKeyboardInput()
     end
+
+handleGravity()
     
 	-- handle score events
     local id = ball:score()
@@ -31,36 +42,56 @@ function love.update(dt)
         scoreboard:score(id)
     end
 	
-	-- do gravity calculations
+	
+    -- update positions
+    ball.update()
+    planet1.update(dt)
+    planet2.update(dt)
+    devMenu.update()
+end
+
+function handleGravity()
+-- do gravity calculations
+    -- this needs to be a function, too long for update 
     
     -- code smell here
     -- this basically just takes the gravity force calculation and reduces it every 
     -- tick to prevent orbits or other unwanted behavior
+    -- keep track of whether ball enters/exits grav
     if planet1.gravField:collide(ball.circle) then
         --change line below for testing behavior 
-        ball:addForce(getGravForce(planet1.circle, ball.circle, FORCE_MULTIPLIER))
-        if inField == true then
-            reduction = reduction + 0.01
+        if doGravity == true then
+ball:addForce(getGravForce(planet1.circle, ball.circle, FORCE_MULTIPLIER))
+        end
+
+        if inField == true and wasInField == false then
+doGravity = true
+            -- get angle
+            dirX, diry = getDir(ball.dx, ball.dy)
+            -- calc exit angle
+            dirx, dirY = translateAngle(dirX, dirY, 180, true)
+--reduction = reduction + 0.01
+        end
+
+        if infield == true and wasInField == true then
+            if ball.dx == dirx and ball.dy == diry then
+                -- code to stop gravity here
+doGravity = false
+            end
         end
         inField = true
     elseif planet2.gravField:collide(ball.circle) then
         ball:addForce(getGravForce(planet2.circle, ball.circle, FORCE_MULTIPLIER))
         if inField == true then
-            reduction = reduction + 0.
+            reduction = reduction + 0.1 
         end
         inField = true
     else
         inField = false
         reduction = 0
     end
+    wasInField = infield
 
-    --ball.dx, ball.dy = normalizeSpeed(ball.dx, ball.dy, 5, 4)
-
-    -- update positions
-    ball.update()
-    planet1.update(dt)
-    planet2.update(dt)
-    devMenu.update()
 end
 
 function love.load()
@@ -160,9 +191,18 @@ function getDir(x1, y1, x2, y2)
     return normalizeVect(deltaX, deltaY)
 end
 
-function translateDir(dir, degrees, clockOrCounter)
-
-
+function translateDir(dx, dy, degrees, clockwise)
+	if clockwise == nil then
+		clockwise = true
+	end
+	
+	local radians = math.rad(degrees)
+	
+	if clockwise == false then
+		radians = -radians
+	end
+	
+	return (dx * math.cos(radians) - dy * math.sin(radians)) , (dx * math.sin(radians) + dy * math.cos(radians))
 end
 
 -- makes any vector into a unit vector
