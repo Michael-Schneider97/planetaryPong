@@ -22,7 +22,7 @@ planet gravity releases ball at an angle dependent on distance between ray ans p
 
 
 local FORCE_MULTIPLIER = 10400
-constForce = 0.4
+constForce = 0.3
 
 -- update stuff
 function love.update(dt)
@@ -145,8 +145,8 @@ end
 function getIntersect(line1y1, line1y2, line2y1, line2y2)
 	local line1Slope = getSlope(0, line1y1, WINDOW_WIDTH, line1y2)
 	local line2Slope = getSlope(0, line2y1, WINDOW_WIDTH, line2y2)
-	x = ( line2y1 - line1y1 ) / (line1Slope - line2Slope)
-	y = line1Slope * x + line1y1
+	local x = ( line2y1 - line1y1 ) / (line1Slope - line2Slope)
+	local y = line1Slope * x + line1y1
 	-- we should handle the case where there is no intersect 
 	return x, y
 end
@@ -158,8 +158,9 @@ end
 -- gets the y intercepts at the edges of the window for a
 -- moving object
 -- im not actually 100% sure this works, mathematically speaking
-function getYIntercepts(x, deltaX, deltaY)
-	return deltaY * x / deltaX , deltaY * (WINDOW_WIDTH - x) / deltaX
+function getYIntercepts(x, y, deltaX, deltaY)
+	local yInter = y - ((deltaY / deltaX) * x) 
+	return yInter, (deltaY / deltaX) * WINDOW_WIDTH + yInter
 end
 
 -- returns the slope of a line
