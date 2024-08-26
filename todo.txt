@@ -1,0 +1,19 @@
+Make planet speed dependent on distance to touch
+
+Implement AI which becomes more challenging the longer the game lasts
+
+Implement destruction of planets
+
+Implement black holes
+
+Implement asteroid showers
+
+Implement random events system
+
+Build main menu
+
+Implement "win" screen
+
+Add sounds
+
+Add skin system
