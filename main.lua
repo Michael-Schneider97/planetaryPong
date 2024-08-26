@@ -50,48 +50,39 @@ handleGravity()
     devMenu.update()
 end
 
+-- the way I setup the planet code is
+-- a violation of DRY. 
 function handleGravity()
--- do gravity calculations
-    -- this needs to be a function, too long for update 
-    
-    -- code smell here
-    -- this basically just takes the gravity force calculation and reduces it every 
-    -- tick to prevent orbits or other unwanted behavior
-    -- keep track of whether ball enters/exits grav
     if planet1.gravField:collide(ball.circle) then
         --change line below for testing behavior 
+        inField = true
         if doGravity == true then
-ball:addForce(getGravForce(planet1.circle, ball.circle, FORCE_MULTIPLIER))
+            ball:addForce(getGravForce(planet1.circle, ball.circle, FORCE_MULTIPLIER))
         end
 
         if inField == true and wasInField == false then
-doGravity = true
+			doGravity = true 
+
             -- get angle
-            dirX, diry = getDir(ball.dx, ball.dy)
+            dirX, dirY = getDir(0, 0, ball.dx, ball.dy)
             -- calc exit angle
-            dirx, dirY = translateAngle(dirX, dirY, 180, true)
---reduction = reduction + 0.01
+            dirX, dirY = translateDir(dirX, dirY, 180, true)
+			--reduction = reduction + 0.01
         end
 
-        if infield == true and wasInField == true then
-            if ball.dx == dirx and ball.dy == diry then
+        if inField == true and wasInField == true then
+            ballDirX, ballDirY = getDir(0, 0, ball.dx, ball.dy)
+            local diff = 0.1
+            if math.abs(ballDirX - dirX) < diff and math.abs(ballDirY - dirY) < diff then
                 -- code to stop gravity here
-doGravity = false
+				doGravity = false
             end
         end
-        inField = true
-    elseif planet2.gravField:collide(ball.circle) then
-        ball:addForce(getGravForce(planet2.circle, ball.circle, FORCE_MULTIPLIER))
-        if inField == true then
-            reduction = reduction + 0.1 
-        end
-        inField = true
     else
         inField = false
-        reduction = 0
     end
-    wasInField = infield
 
+    wasInField = inField
 end
 
 function love.load()
