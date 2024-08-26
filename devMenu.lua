@@ -5,7 +5,7 @@ function getDevMenu()
 	-- display data at some spot
 	local devMenu = {trackedData = {}, vars = {}, names = {}, editable = {}, setters = {}, buttonsDown = {}, buttonsUp = {} }
 	devMenu.incrementor = 0.1
-	
+	devMenu.show = true
 	-- allows you to add data to be tracked by the table
 	-- you have to add it as a function
 	function devMenu:addVariable(getter, name, allowModification, setter)
@@ -44,6 +44,9 @@ function getDevMenu()
 	
 	-- displays current data as well as other ui elements
 	function devMenu:draw()
+if devMenu.show == false then
+return
+end
 		oldFont = love.graphics.getFont()
 		love.graphics.setFont(devFont)
 		local height = devFont:getHeight()
