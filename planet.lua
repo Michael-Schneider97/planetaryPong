@@ -9,8 +9,8 @@ function makePlanet(x, y, r, image, gravR, gravImg)
     planet.dx = 0
     planet.dy = 0
     -- these are used as 
-    planet.outerBarrier = (planet.gravField.r - planet.circle.r) * 2/3
-    planet.innerBarrier = (planet.gravField.r - planet.circle.r) / 3
+    planet.outerBarrier = ((planet.gravField.r - planet.circle.r) * 2/3) + planet.circle.r
+    planet.innerBarrier = ((planet.gravField.r - planet.circle.r) / 3) + planet.circle.r
 
     function planet:update(dt)
         planet.circle.x = planet.circle.x + planet.dx
@@ -45,24 +45,27 @@ function makePlanet(x, y, r, image, gravR, gravImg)
             -- calc exit angle
             planet.dirX, planet.dirY = translateDir(planet.dirX, planet.dirY, 180, true)
 			-- get raycast data
-			planet.ballLeftY, planet.ballRightY = getYIntercepts(ball.circle.x, ball.dx, ball.dy)
+			planet.ballLeftY, planet.ballRightY = getYIntercepts(ball.circle.x, ball.circle.y, ball.dx, ball.dy)
 			if planet.ballLeftY ~= nil then 
 				-- get perpendicular y's
-				planet.perpLeftY, planet.perpRightY = getYIntercepts(planet.circle.x, translateDir(ball.dx, ball.dy, 90))
+				planet.perpLeftY, planet.perpRightY = getYIntercepts(planet.circle.x, planet.circle.y, translateDir(ball.dx, ball.dy, 90))
 				-- then find intersect
 				planet.interX, planet.interY = getIntersect(planet.ballLeftY, planet.ballRightY, planet.perpLeftY, planet.perpRightY)
-				-- then find distance from planeto intersect
+				-- then find distance from planet to intersect
 				planet.distToBall = distance(planet.circle.x, planet.circle.y, planet.interX, planet.interY)
 				-- then compare to sentinels and modify G and ball speed accordingly
 				if planet.distToBall >= planet.outerBarrier then
 					-- ball goes slower
 					ball.goalSpeed = 5
+constForce = 0.3
 				elseif planet.distToBall >= planet.innerBarrier and planet.distToBall < planet.outerBarrier then
 					-- ball goes medium speed
 					ball.goalSpeed = 7
+constForce = 0.5
 				elseif planet.distToBall < planet.innerBarrier and planet.distToBall > planet.circle.r then
 					--ball goes faster
 					ball.goalSpeed = 9
+constForce = 0.7
 				elseif planet.distToBall < planet.circle.r then
 					-- ball kills planet
 				end
