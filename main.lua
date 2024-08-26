@@ -151,6 +151,10 @@ function getIntersect(line1y1, line1y2, line2y1, line2y2)
 	return x, y
 end
 
+-- we conditionally set the speed of the ball and the exit angle based on distance between ball and planet ray cast:
+
+
+
 -- gets the y intercepts at the edges of the window for a
 -- moving object
 -- im not actually 100% sure this works, mathematically speaking
@@ -160,7 +164,7 @@ end
 
 -- returns the slope of a line
 function getSlope(x1, y1, x2, y2)
-	if x1 == x2
+	if x1 == x2 then
 		return math.huge
 	end 
 	
