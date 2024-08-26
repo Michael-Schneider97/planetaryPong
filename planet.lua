@@ -48,7 +48,7 @@ function makePlanet(x, y, r, image, gravR, gravImg)
 			planet.ballLeftY, planet.ballRightY = getYIntercepts(ball.circle.x, ball.dx, ball.dy)
 			if planet.ballLeftY ~= nil then 
 				-- get perpendicular y's
-				planet.perpLeftY, planet.perpRightY = getYIntercepts(planet.circle.x, translateDir(ball.dx, ball.dy, 90)
+				planet.perpLeftY, planet.perpRightY = getYIntercepts(planet.circle.x, translateDir(ball.dx, ball.dy, 90))
 				-- then find intersect
 				planet.interX, planet.interY = getIntersect(planet.ballLeftY, planet.ballRightY, planet.perpLeftY, planet.perpRightY)
 				-- then find distance from planeto intersect
@@ -56,11 +56,14 @@ function makePlanet(x, y, r, image, gravR, gravImg)
 				-- then compare to sentinels and modify G and ball speed accordingly
 				if planet.distToBall >= planet.outerBarrier then
 					-- ball goes slower
+					ball.goalSpeed = 5
 				elseif planet.distToBall >= planet.innerBarrier and planet.distToBall < planet.outerBarrier then
 					-- ball goes medium speed
+					ball.goalSpeed = 7
 				elseif planet.distToBall < planet.innerBarrier and planet.distToBall > planet.circle.r then
 					--ball goes faster
-				elseif planet.distToBall < planet.circle.r
+					ball.goalSpeed = 9
+				elseif planet.distToBall < planet.circle.r then
 					-- ball kills planet
 				end
 			end 
