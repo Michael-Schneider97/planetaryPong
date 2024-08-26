@@ -51,41 +51,6 @@ function love.update(dt)
     devMenu.update()
 end
 
--- the way I setup the planet code is
--- a violation of DRY. 
-function handleGravity()
-    if planet1.gravField:collide(ball.circle) then
-        --change line below for testing behavior 
-        inField = true
-        if doGravity == true then
-            ball:addForce(getGravForce(planet1.circle, ball.circle, FORCE_MULTIPLIER))
-        end
-
-        if inField == true and wasInField == false then
-			doGravity = true 
-
-            -- get angle
-            dirX, dirY = getDir(0, 0, ball.dx, ball.dy)
-            -- calc exit angle
-            dirX, dirY = translateDir(dirX, dirY, 180, true)
-			--reduction = reduction + 0.01
-        end
-
-        if inField == true and wasInField == true then
-            ballDirX, ballDirY = getDir(0, 0, ball.dx, ball.dy)
-            local diff = 0.1
-            if math.abs(ballDirX - dirX) < diff and math.abs(ballDirY - dirY) < diff then
-                -- code to stop gravity here
-				doGravity = false
-            end
-        end
-    else
-        inField = false
-    end
-
-    wasInField = inField
-end
-
 function love.load()
     math.randomseed(os.time())
     love.window.setMode(WINDOW_WIDTH, WINDOW_HEIGHT, {
@@ -176,7 +141,34 @@ function calcForce(x)
     return constForce
 end
 
--- if this doesnt get directionality right, mess with delta()
+-- finds the point where a pair of lines intersect
+function getIntersect(line1y1, line1y2, line2y1, line2y2)
+	local line1Slope = getSlope(0, line1y1, WINDOW_WIDTH, line1y2)
+	local line2Slope = getSlope(0, line2y1, WINDOW_WIDTH, line2y2)
+	x = ( line2y1 - line1y1 ) / (line1Slope - line2Slope)
+	y = line1Slope * x + line1y1
+	-- we should handle the case where there is no intersect 
+	return x, y
+end
+
+-- gets the y intercepts at the edges of the window for a
+-- moving object
+-- im not actually 100% sure this works, mathematically speaking
+function getYIntercepts(x, deltaX, deltaY)
+	return deltaY * x / deltaX , deltaY * (WINDOW_WIDTH - x) / deltaX
+end
+
+-- returns the slope of a line
+function getSlope(x1, y1, x2, y2)
+	if x1 == x2
+		return math.huge
+	end 
+	
+	return (y2 - y1) / (x2 - x1)
+end
+
+
+-- returns direction from point 1 to point 2
 -- returns a unit vector
 function getDir(x1, y1, x2, y2)
     local deltaX, deltaY = delta(x1, y1, x2, y2)
@@ -266,9 +258,9 @@ function handleKeyboardInput()
 end
 
 function handleTouchInput()
-local stopPlanet1 = true
-local stopPlanet2 = true
-local buffer = 25
+	local stopPlanet1 = true
+	local stopPlanet2 = true
+	local buffer = 25
 	local planet1VertBoundary = WINDOW_WIDTH / 3
 	local planet2VertBoundary = WINDOW_WIDTH * 2 / 3
 	local touches = love.touch.getTouches()
@@ -280,22 +272,22 @@ local buffer = 25
 		-- this might bug out for multiple touches at once
 		if x < planet1VertBoundary and distance(planet1.circle.x, planet1.circle.y, x, y) > buffer then
 			planet1:setDir(getDir(planet1.circle.x, planet1.circle.y, x, y))
-stopPlanet1 = false
+	stopPlanet1 = false
 		end
 
         if x > planet2VertBoundary and distance(planet2.circle.x, planet2.circle.y, x, y) > buffer then
             planet2:setDir(getDir(planet2.circle.x, planet2.circle.y, x, y))
-stopPlanet2 = false
-end
+	stopPlanet2 = false
+		end
 	end
 
-if stopPlanet1 then
-planet1:stop()
-end
+	if stopPlanet1 then
+		planet1:stop()
+	end
 
-if stopPlanet2 then
-planet2:stop()
-end
+	if stopPlanet2 then
+		planet2:stop()
+	end
 
 end
 
