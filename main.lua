@@ -34,7 +34,8 @@ function love.update(dt)
 	    handleKeyboardInput()
     end
 
-handleGravity()
+	planet1:handleGravity()
+	planet2:handleGravity()
     
 	-- handle score events
     local id = ball:score()

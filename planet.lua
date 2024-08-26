@@ -26,6 +26,39 @@ function makePlanet(x, y, r, image, gravR, gravImg)
         planet.dx, planet.dy = setSpeed(dx, dy, planet.speed)
     end
 
+    function planet:handleGravity()
+    if planet.gravField:collide(ball.circle) then
+        --change line below for testing behavior 
+        planet.inField = true
+        if planet.doGravity == true then
+            ball:addForce(getGravForce(planet.circle, ball.circle, FORCE_MULTIPLIER))
+        end
+
+        if planet.inField == true and planet.wasInField == false then
+			planet.doGravity = true 
+
+            -- get angle
+            planet.dirX, planet.dirY = getDir(0, 0, ball.dx, ball.dy)
+            -- calc exit angle
+            planet.dirX, planet.dirY = translateDir(planet.dirX, planet.dirY, 180, true)
+			--reduction = reduction + 0.01
+        end
+
+        if planet.inField == true and planet.wasInField == true then
+            planet.ballDirX, planet.ballDirY = getDir(0, 0, ball.dx, ball.dy)
+            planet.diff = 0.1
+            if math.abs(planet.ballDirX - planet.dirX) < planet.diff and math.abs(planet.ballDirY - planet.dirY) < planet.diff then
+                -- code to stop gravity here
+				planet.doGravity = false
+            end
+        end
+    else
+        planet.inField = false
+    end
+
+    planet.wasInField = planet.inField
+end
+
     function planet:draw()
         planet.gravField:draw()
         planet.circle:draw()
