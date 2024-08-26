@@ -14,6 +14,7 @@ function makeBall(x, y, r, image)
         ball.circle.y = WINDOW_HEIGHT / 2  
         ball.dy = 0
         ball.dx = -5
+ball.goalSpeed = 5
     end
 
     function ball:update()
