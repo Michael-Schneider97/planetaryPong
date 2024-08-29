@@ -194,6 +194,24 @@ function translateDir(dx, dy, degrees, clockwise)
 	return (dx * math.cos(radians) - dy * math.sin(radians)) , (dx * math.sin(radians) + dy * math.cos(radians))
 end
 
+-- Returns the angle in degrees between a pair of vectors
+-- If only one vector is supplied, returns the angle between that and {x = 1, y = 0}
+function vectToDeg(dx1, dy1, dx2, dy2)
+	if dx2 == nil then
+		dx2, dy2 = getDir(0, 0, 1, 0)
+	else
+		dx2, dy2 = getDir(0, 0, dx2, dy2)
+	end
+	
+	dx1, dy1 = getDir(0, 0, dx1, dy1)
+	
+	local vect1Dist = distance(0, 0, dx1, dy1)
+	local vect2Dist = distance(0, 0, dx2, dy2)
+	local distBetween = distance(dx1, dy1, dx2, dy2)
+	
+	return math.deg(math.acos((vect1Dist * vect1Dist + vect2Dist * vect2Dist - distBetween * distBetween) / (2 * vect1Dist * vect2Dist)))
+end
+
 -- makes any vector into a unit vector
 function normalizeVect(dx, dy)
     dist = distance(0, 0, dx, dy)
