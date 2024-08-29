@@ -1,5 +1,7 @@
 Make planet speed dependent on distance to touch
 
+Make exit angle dependent on ray cast distance
+
 Implement AI which becomes more challenging the longer the game lasts
 
 Implement destruction of planets
@@ -7,6 +9,12 @@ Implement destruction of planets
 Implement black holes
 
 Implement asteroid showers
+
+Implement rogue planets
+
+Implement rogue stars
+
+Death Star
 
 Implement random events system
 
@@ -17,3 +25,5 @@ Implement "win" screen
 Add sounds
 
 Add skin system
+
+Do not let scope creep stop you. 
