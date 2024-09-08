@@ -24,8 +24,17 @@ planet gravity releases ball at an angle dependent on distance between ray ans p
 local FORCE_MULTIPLIER = 10400
 constForce = 0.3
 
--- update stuff
 function love.update(dt)
+    gameState = {play = 'play', pause = 'pause', menu = 'menu'}
+    currentState = gameState.play
+
+    if currentState == gameState.play then
+        updateGravSim()
+    end
+end
+
+-- update stuff
+function updateGravSim()
     
     -- handle keyboard input
     if mobile == true then
