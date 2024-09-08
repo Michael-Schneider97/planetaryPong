@@ -39,11 +39,11 @@ function makePlanet(x, y, r, image, gravR, gravImg)
 
         if planet.inField == true and planet.wasInField == false then
 			planet.doGravity = true 
-
+			-- TODO: Improve variable names to be more descriptive 
+			-- TODO: reimplement on a scale system, rather than hardcoding break points
+			
             -- get angle
             planet.dirX, planet.dirY = getDir(0, 0, ball.dx, ball.dy)
-            -- calc exit angle
-            planet.dirX, planet.dirY = translateDir(planet.dirX, planet.dirY, 180, true)
 			-- get raycast data
 			planet.ballLeftY, planet.ballRightY = getYIntercepts(ball.circle.x, ball.circle.y, ball.dx, ball.dy)
 			if planet.ballLeftY ~= nil then 
@@ -56,20 +56,29 @@ function makePlanet(x, y, r, image, gravR, gravImg)
 				-- then compare to sentinels and modify G and ball speed accordingly
 				if planet.distToBall >= planet.outerBarrier then
 					-- ball goes slower
-					ball.goalSpeed = 5
+					ball.goalSpeed = 5 
+					planet.exitAngle = 120
+					--planet.distToBall / planet.r
 constForce = 0.3
 				elseif planet.distToBall >= planet.innerBarrier and planet.distToBall < planet.outerBarrier then
 					-- ball goes medium speed
 					ball.goalSpeed = 7
+					planet.exitAngle = 160
 constForce = 0.5
 				elseif planet.distToBall < planet.innerBarrier and planet.distToBall > planet.circle.r then
 					--ball goes faster
 					ball.goalSpeed = 9
+					planet.exitAngle = 180
 constForce = 0.7
 				elseif planet.distToBall < planet.circle.r then
-					-- ball kills planet
+					-- TODO: ball kills planet
+					
+					-- temp code
+					ball.goalSpeed = 9
+					planet.exitAngle = 180
 				end
 			end 
+			planet.dirX, planet.dirY = translateDir(planet.dirX, planet.dirY, planet.exitAngle)
         end
 
         if planet.inField == true and planet.wasInField == true then
