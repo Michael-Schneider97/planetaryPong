@@ -74,6 +74,37 @@ end
 	return devMenu
 end
 
+--[[
+dev menu functions
+This is a hacky solution but the dev menu doesnt need to follow best practices.
+Additionally this allows me to have finer control over the dev menu without creating
+an esoteric abstraction that only makes maintaining the codebasw harder.]]
+
+function getBallSpeed()
+	return getSpeed(ball.dx, ball.dy)
+end
+
+function setBallSpeed(newSpd)
+	ball.dx, ball.dy = setSpeed(ball.dx, ball.dy, newSpd) 
+end
+
+function getBallGoalSpd()
+	return ball.goalSpeed
+end
+
+function setBallGoalSpd(newSpd)
+	ball.goalSpeed = newSpd
+end
+
+-- for using constants for gravity calcs
+function getGravCoef()
+	return constForce
+end
+
+function setGravCoef(newCoef)
+	constForce = newCoef
+end
+
 
 
 
