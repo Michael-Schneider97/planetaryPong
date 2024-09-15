@@ -7,6 +7,7 @@ require 'planet'
 require 'ball'
 require 'scoreboard'
 require 'button' 
+Slab = require 'Slab' -- <- will this work?
 local rs = require("resolution_solution")
 
 -- approach 1: return gravity as a constant
@@ -26,9 +27,16 @@ constForce = 0.3
 
 function love.update(dt)
     gameState = {play = 'play', pause = 'pause', menu = 'menu'}
-    currentState = gameState.play
+    currentState = gameState.pause
+
+    -- assignment every update cycle is bad but shouldnt impact performance enough to matter
+    if currentState == gameState.pause then
+        devMenu.show = false
+        Slab.Update(dt)
+end
 
     if currentState == gameState.play then
+        devMenu.show = true
         updateGravSim()
     end
 end
@@ -62,6 +70,7 @@ end
 
 function love.load()
     math.randomseed(os.time())
+    Slab.Initialize()
     love.window.setMode(WINDOW_WIDTH, WINDOW_HEIGHT, {
         fullscreen = true,
         resizable = false,
@@ -93,6 +102,7 @@ function love.draw()
     planet2.draw()  
     ball.draw()  
     scoreboard:draw()
+    
     devMenu:draw()
     
     -- stop drawing
