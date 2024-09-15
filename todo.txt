@@ -1,6 +1,10 @@
 Make planet speed dependent on distance to touch
 
-Make exit angle dependent on ray cast distance
+Make speed, gravity, and exit angle scale more precisely
+
+Make gravity pathing more aesthetic
+
+Consider aim/speed arrow visual
 
 Implement AI which becomes more challenging the longer the game lasts
 
@@ -24,6 +28,12 @@ Implement "win" screen
 
 Add sounds
 
+Add statistics page
+
+Add tutorial page
+
 Add skin system
+
+Figure out distribution
 
 Do not let scope creep stop you. 
