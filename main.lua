@@ -11,6 +11,7 @@ require 'planet'
 require 'ball'
 require 'scoreboard'
 require 'button' 
+require 'physics'
 Slab = require 'Slab' -- <- will this work?
 local rs = require("resolution_solution")
 
