@@ -28,8 +28,11 @@ function makeScoreboard()
     end
 
     function scoreboard:draw()
+       local curFont = love.graphics.getFont()
+       love.graphics.setFont(titleFont)
         love.graphics.print(tostring(scoreboard.playerScores[1]), WINDOW_WIDTH / 3, WINDOW_HEIGHT / 10, 0, scoreboard.SCORE_SCALE)
         love.graphics.print(tostring(scoreboard.playerScores[2]), WINDOW_WIDTH * 2 / 3, WINDOW_HEIGHT / 10, 0, scoreboard.SCORE_SCALE)
+love.graphics.setFont(curFont)
     end
 
     return scoreboard
