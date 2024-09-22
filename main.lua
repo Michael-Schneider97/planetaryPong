@@ -2,8 +2,10 @@
 WINDOW_WIDTH = 1280
 WINDOW_HEIGHT = 720
 mobile = false
+showTutorialOnStart = true
 local FORCE_MULTIPLIER = 10400
 constForce = 0.3
+gameState = {play = 'play', pause = 'pause', menu = 'menu'}
 
 -- libs etc
 require 'devMenu'
@@ -29,8 +31,8 @@ planet gravity releases ball at an angle dependent on distance between ray ans p
 -- love callbacks
 
 function love.update(dt)
-    gameState = {play = 'play', pause = 'pause', menu = 'menu'}
-    currentState = gameState.pause
+    
+    
 
     -- assignment every update cycle is bad but shouldnt impact performance enough to matter
     if currentState == gameState.pause then
@@ -61,6 +63,7 @@ function love.load()
     
     setupObjects()
     love.graphics.setFont(titleFont)
+currentState = gameState.pause
 end
 
 function love.draw()
@@ -73,6 +76,7 @@ function love.draw()
     love.graphics.clear(.1, .1, .1)
 
     love.graphics.draw(bkg, 0, 0, 0, WINDOW_WIDTH / bkg:getWidth(), WINDOW_HEIGHT / bkg:getHeight())
+    love.graphics.setFont(titleFont)
     love.graphics.printf(titleText, 0, WINDOW_HEIGHT * 0.15, WINDOW_WIDTH, 'center') 
     planet1.draw()   
     planet2.draw()  
@@ -80,8 +84,10 @@ function love.draw()
     scoreboard:draw()
     
     devMenu:draw()
-	Slab.Draw() 
-    
+    if currentState ~= gameState.play then
+        Slab.Draw() 
+    end 
+
     -- stop drawing
     love.graphics.setScissor(old_x, old_y, old_w, old_h)
 	rs.pop()
@@ -99,13 +105,77 @@ function love.mousepressed(_x, _y)
 end
 
 -- delegated functions
-
 function updateUi(dt)
     Slab.Update(dt)
+    
+    if showTutorialOnStart == true then
+        doTutorial()
+    -- else skip tutorial, go to whatever was next either menu or gameplay 
+    else
+	    currentState = gameState.play
+    end
+end
 
-    Slab.BeginWindow('MyFirstWindow', {Title = "My First Window"})
-    Slab.Text("Hello World")
+-- handles navigation between tutorials
+function doTutorial()
+	local tutorials = {tutorial1, tutorial2}
+	if cur == nil then
+         cur = 1
+         endTutorial = false
+    end
+
+	
+	cur = tutorials[cur]()
+	if cur > table.getn(tutorials) then
+	    -- tutorial is finished
+    endTutorial = true
+    cur = nil
+	end
+	
+	if endTutorial == true then
+      endTutorial = nil
+	    currentState = gameState.play
+	end 
+end
+
+function tutorial1()
+    local tutorial1Str = "Use your gravitational field to slingshot the moon back at your opponent. You score a point when the moon passes your opponent or destroys their planet. "
+    local index = 1
+    --conditional checks if "dont show again" has been pressed here
+    Slab.BeginWindow('Tutorial1',  {Title = "", AutoSizeWindow = false})
+    Slab.Textf("Tutorial Part 1")
+    Slab.Textf(tutorial1Str)
+    if Slab.Button("Next") then
+    --replace current tutorial with second tutorial
+       index = 2
+    end
     Slab.EndWindow()
+    return index
+end
+
+function tutorial2()
+    local tutorial2Str = "Tutorial 2 test string. "
+    local index = 2
+    --conditional checks if "dont show again" has been pressed here
+    Slab.BeginWindow('Tutorial2',  {Title = "", AutoSizeWindow = false})
+    Slab.Textf("Tutorial Part 2")
+    Slab.Textf(tutorial2Str)
+    
+    if Slab.CheckBox(Checked, "Don't Show Again") then
+		Checked = not Checked 
+	end
+    
+    if Slab.Button("Exit") then
+    --replace current tutorial with second tutorial
+       endTutorial = true
+       index = 3
+    end
+    Slab.EndWindow()
+    if Checked == false then
+	    showTutorialOnStart = false
+    end
+   
+    return index
 end
 
 -- update stuff
@@ -162,6 +232,7 @@ function setupObjects()
     devMenu:addVariable(getBallSpeed, "Ball Speed: ", true, setBallSpeed)
     devMenu:addVariable(getBallGoalSpd, "Ball Goal Speed: ", true, setBallGoalSpd)
     devMenu:addVariable(getGravCoef, "Gravity Coef: ", true, setGravCoef)
+
 end
 
 -- moved here to clean up the update function
