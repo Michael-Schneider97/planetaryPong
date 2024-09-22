@@ -8,7 +8,6 @@ function makePlanet(x, y, r, image, gravR, gravImg)
     planet.gravField = makeCircle(x, y, gravR, gravImg)
     planet.dx = 0
     planet.dy = 0
-    -- these are used as 
     planet.outerBarrier = ((planet.gravField.r - planet.circle.r) * 2/3) + planet.circle.r
     planet.innerBarrier = ((planet.gravField.r - planet.circle.r) / 3) + planet.circle.r
 
@@ -17,6 +16,19 @@ function makePlanet(x, y, r, image, gravR, gravImg)
         planet.gravField.x = planet.gravField.x + planet.dx
         planet.circle.y = planet.circle.y + planet.dy
         planet.gravField.y = planet.gravField.y + planet.dy
+    end
+    
+    -- adjusts speed based on distance of touch
+    function planet:adjustSpeed(dist)
+	    planet.minSpeed = 10
+	    planet.maxSpeed = 25
+	    planet.speedDif = planet.maxSpeed - planet.minSpeed
+	    planet.percDist = dist / (WINDOW_HEIGHT / 1.3)
+	    if planet.percDist > 1 then
+		    planet.percDist = 1
+		end
+		planet.additionalSpeed = planet.percDist * planet.speedDif
+		planet.speed = planet.minSpeed + planet.additionalSpeed
     end
 
     function planet:stop()

@@ -33,7 +33,7 @@ planet gravity releases ball at an angle dependent on distance between ray ans p
 function love.update(dt)
     
     
-
+	-- TODO redesign state machine when we implement main menu
     -- assignment every update cycle is bad but shouldnt impact performance enough to matter
     if currentState == gameState.pause then
         devMenu.show = false
@@ -268,12 +268,14 @@ function handleTouchInput()
 		
 		-- this might bug out for multiple touches at once
 		if x < planet1VertBoundary and distance(planet1.circle.x, planet1.circle.y, x, y) > buffer then
-			planet1:setDir(getDir(planet1.circle.x, planet1.circle.y, x, y))
+			planet1:adjustSpeed(distance(x, y, planet1.circle.x, planet1.circle.y))
+          planet1:setDir(getDir(planet1.circle.x, planet1.circle.y, x, y))
 	stopPlanet1 = false
 		end
 
         if x > planet2VertBoundary and distance(planet2.circle.x, planet2.circle.y, x, y) > buffer then
-            planet2:setDir(getDir(planet2.circle.x, planet2.circle.y, x, y))
+            planet2:adjustSpeed(distance(x, y, planet2.circle.x, planet2.circle.y))
+planet2:setDir(getDir(planet2.circle.x, planet2.circle.y, x, y))
 	stopPlanet2 = false
 		end
 	end
