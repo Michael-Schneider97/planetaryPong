@@ -1,4 +1,4 @@
-Make planet speed dependent on distance to touch
+~~Make planet speed dependent on distance to touch~~
 
 Make speed, gravity, and exit angle scale more precisely
 
@@ -6,7 +6,9 @@ Make gravity pathing more aesthetic
 
 Consider aim/speed arrow visual
 
-Implement AI which becomes more challenging the longer the game lasts
+Implement AI 
+
+AI becomes more challenging the longer the game lasts
 
 Implement destruction of planets
 
@@ -18,7 +20,7 @@ Implement rogue planets
 
 Implement rogue stars
 
-Death Star
+Death Star?
 
 Implement random events system
 
@@ -30,7 +32,9 @@ Add sounds
 
 Add statistics page
 
-Add tutorial page
+~~Add tutorial page~~
+
+Refactor tutorial page
 
 Add skin system
 
